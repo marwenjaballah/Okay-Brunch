@@ -14,7 +14,7 @@ const _sourceSerif_4 = V0_Font_Source_Serif_4({ subsets: ['latin'], weight: ["20
 export const metadata: Metadata = {
   title: "Okay Brunch - Premium Brunch Restaurant",
   description: "Experience premium brunch with bold flavors and organic ingredients",
-  generator: "v0.app",
+  generator: "Okay Brunch",
   icons: {
     icon: [
       {
