@@ -127,7 +127,23 @@ export function PaymentForm({ user, total }: PaymentFormProps) {
          return
       }
 
-      // 5. Success
+      // 5. Notify n8n (Fire and forget)
+      fetch("/api/notify-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          order_id: order.id,
+          user: {
+             email: user.email,
+             id: user.id
+          },
+          total: total,
+          items: cart.map(c => ({ name: c.item.name, quantity: c.quantity, price: c.item.price })),
+          date: new Date().toISOString()
+        })
+      }).catch(err => console.error("Notification trigger failed", err))
+
+      // 6. Success
       clearCart()
       router.push(`/orders/${order.id}`)
     } else {
