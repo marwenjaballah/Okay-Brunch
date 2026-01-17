@@ -6,10 +6,10 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Header } from "@/components/header"
 import { useAuth } from "@/components/auth/auth-provider"
-import { useCartStore } from "@/lib/cart-store"
+import { useCartStore } from "@/hooks/use-cart-store"
 import { loadStripe } from "@stripe/stripe-js"
 import { Elements } from "@stripe/react-stripe-js"
-import { PaymentForm } from "@/components/payment-form"
+import { PaymentForm } from "@/components/checkout/payment-form"
 
 // Make sure to call loadStripe outside of a component’s render to avoid
 // recreating the Stripe object on every render.

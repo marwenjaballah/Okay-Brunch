@@ -5,15 +5,8 @@ import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { getSupabaseClient } from "@/lib/supabase/client"
-import { useCartStore } from "@/lib/cart-store"
-
-interface MenuItem {
-  id: string
-  name: string
-  price: number
-  category: string
-  description: string
-}
+import { useCartStore } from "@/hooks/use-cart-store"
+import { MenuItem } from "@/types"
 
 
 

@@ -19,7 +19,30 @@ import {
 import { Home, Package, Users, Settings, LogOut } from "lucide-react"
 import Link from "next/link"
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+import { getSupabaseServer } from "@/lib/supabase/server"
+import { redirect } from "next/navigation"
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const supabase = await getSupabaseServer()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect("/auth/login")
+  }
+
+  const { data: userData } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (userData?.role !== 'admin') {
+    redirect("/account")
+  }
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">

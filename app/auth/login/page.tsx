@@ -23,15 +23,30 @@ export default function LoginPage() {
     setError("")
     setLoading(true)
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: { user }, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
 
-    if (error) {
-      setError(error.message)
-    } else {
-      router.push("/account")
+    if (signInError) {
+      setError(signInError.message)
+      setLoading(false)
+      return
+    }
+
+    if (user) {
+      // Check user role
+      const { data: userData } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+      if (userData?.role === 'admin') {
+        router.push("/admin/dashboard")
+      } else {
+        router.push("/account")
+      }
     }
     setLoading(false)
   }

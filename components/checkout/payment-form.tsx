@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useState, useEffect } from "react"
@@ -6,7 +5,7 @@ import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { getSupabaseClient } from "@/lib/supabase/client"
-import { useCartStore } from "@/lib/cart-store"
+import { useCartStore } from "@/hooks/use-cart-store"
 import { useRouter } from "next/navigation"
 
 interface PaymentFormProps {
