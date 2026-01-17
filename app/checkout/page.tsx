@@ -5,26 +5,24 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Header } from "@/components/header"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { useAuth } from "@/components/auth/auth-provider"
-import { getSupabaseClient } from "@/lib/supabase/client"
 import { useCartStore } from "@/lib/cart-store"
+import { loadStripe } from "@stripe/stripe-js"
+import { Elements } from "@stripe/react-stripe-js"
+import { PaymentForm } from "@/components/payment-form"
 
-
+// Make sure to call loadStripe outside of a component’s render to avoid
+// recreating the Stripe object on every render.
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 export default function CheckoutPage() {
-  const [loading, setLoading] = useState(false)
-  const [address, setAddress] = useState("")
-  const [phone, setPhone] = useState("")
+  const [clientSecret, setClientSecret] = useState("")
   const [mounted, setMounted] = useState(false)
-  const [savedProfile, setSavedProfile] = useState<any>(null)
   const { user, loading: authLoading } = useAuth()
-  const supabase = getSupabaseClient()
   const router = useRouter()
 
   // Use Zustand store for cart management
-  const { cart, clearCart, getTotal } = useCartStore()
+  const { cart, getTotal } = useCartStore()
   const total = mounted ? getTotal() : 0
 
   useEffect(() => {
@@ -38,80 +36,36 @@ export default function CheckoutPage() {
       router.push("/auth/login")
       return
     }
+  }, [user, authLoading, router])
 
-    // Fetch profile
-    const fetchProfile = async () => {
-      const { data } = await supabase.from("users").select("*").eq("id", user.id).single()
-      if (data) {
-        setSavedProfile(data)
-      }
+  useEffect(() => {
+    if (mounted && cart.length > 0) {
+      // Create PaymentIntent as soon as the page loads
+      fetch("/api/create-payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // We pass items to calculate total on backend. 
+        // Note: In a real app we might pass IDs and fetch prices from DB.
+        body: JSON.stringify({ items: cart }),
+      })
+        .then((res) => res.json())
+        .then((data) => setClientSecret(data.clientSecret))
     }
+  }, [mounted, cart])
 
-    fetchProfile()
-  }, [user, authLoading, router, supabase])
+  const appearance = {
+    theme: 'stripe' as const,
+    variables: {
+      colorPrimary: '#000000',
+    },
+  };
 
-  const handleCheckout = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+  const options = {
+    clientSecret,
+    appearance,
+  };
 
-    if (!user) return
-
-    // Ensure user exists in users table (upsert)
-    const { error: userError } = await supabase
-      .from("users")
-      .upsert(
-        {
-          id: user.id,
-          email: user.email!,
-          full_name: user.user_metadata?.full_name || user.email?.split("@")[0],
-          phone: phone,
-        },
-        {
-          onConflict: "id",
-        }
-      )
-
-    if (userError) {
-      alert("Error setting up user: " + userError.message)
-      setLoading(false)
-      return
-    }
-
-    // Create order
-    const { data: order, error } = await supabase
-      .from("orders")
-      .insert([
-        {
-          user_id: user.id,
-          status: "pending",
-          total_amount: total,
-          delivery_address: address,
-          notes: phone,
-        },
-      ])
-      .select()
-      .single()
-
-    if (error) {
-      alert("Error creating order: " + error.message)
-      setLoading(false)
-      return
-    }
-
-    // Add order items
-    const orderItems = cart.map((c) => ({
-      order_id: order.id,
-      menu_item_id: c.item.id,
-      quantity: c.quantity,
-      price: c.item.price,
-    }))
-
-    await supabase.from("order_items").insert(orderItems)
-
-    // Clear cart using Zustand store
-    clearCart()
-    router.push(`/orders/${order.id}`)
-  }
+  if (!mounted || authLoading) return null
 
   return (
     <>
@@ -122,66 +76,22 @@ export default function CheckoutPage() {
 
           <div className="grid md:grid-cols-3 gap-12">
             <div className="md:col-span-2">
-              <form onSubmit={handleCheckout} className="space-y-8">
-                <div className="border-4 border-foreground p-8">
-                  <h2 className="text-2xl font-bold font-mono mb-6">DELIVERY INFO</h2>
-
-                  {savedProfile && !address && !phone && (
-                    <div className="mb-6 bg-muted/20 p-4 border border-border">
-                      <p className="font-mono text-sm mb-2">Saved profile found:</p>
-                      <p className="font-mono text-sm font-bold">{savedProfile.address}, {savedProfile.phone}</p>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="mt-2 text-xs"
-                        onClick={() => {
-                          setAddress(savedProfile.address || "")
-                          setPhone(savedProfile.phone || "")
-                        }}
-                      >
-                        USE SAVED INFO
-                      </Button>
-                    </div>
-                  )}
-
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-bold font-mono mb-2">ADDRESS</label>
-                      <Input
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        className="border-2 border-foreground w-full px-4 py-3"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-bold font-mono mb-2">PHONE</label>
-                      <Input
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="border-2 border-foreground w-full px-4 py-3"
-                        required
-                      />
-                    </div>
-                  </div>
+              {clientSecret && user ? (
+                <Elements options={options} stripe={stripePromise}>
+                  <PaymentForm user={user} total={total} />
+                </Elements>
+              ) : (
+                <div className="border-4 border-foreground p-8 text-center font-mono">
+                  {cart.length === 0 ? "Your cart is empty." : "Loading payment details..."}
                 </div>
-
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full border-2 border-foreground font-bold py-4 text-lg"
-                >
-                  {loading ? "PROCESSING..." : "PLACE ORDER"}
-                </Button>
-              </form>
+              )}
             </div>
 
             {/* Order Summary */}
             <div className="border-4 border-foreground p-8 h-fit">
               <h2 className="text-2xl font-bold font-mono mb-6">ORDER SUMMARY</h2>
               <div className="space-y-4 mb-8">
-                {!mounted || cart.length === 0 ? (
+                {cart.length === 0 ? (
                   <p className="font-mono text-muted-foreground">No items in cart</p>
                 ) : (
                   cart.map((c) => (

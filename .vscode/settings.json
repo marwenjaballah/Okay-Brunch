@@ -1,0 +1,5 @@
+{
+    "notebook.defaultFormatter": "google.antigravity-remote-wsl",
+    "terminal.integrated.defaultProfile.windows": "Ubuntu (WSL)",
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+}
