@@ -1,5 +1,6 @@
 import { Header } from "@/components/header"
 import { getSupabaseServer } from "@/lib/supabase/server"
+import { MenuItemCard } from "@/components/menu-item-card"
 
 export const metadata = {
   title: "Menu - Okay Brunch",
@@ -22,19 +23,13 @@ export default async function MenuPage() {
           <p className="text-xl font-mono mb-16">Crafted with premium ingredients</p>
 
           {categories.map((category) => (
-            <section key={category} className="mb-16 border-b-4 border-foreground pb-16">
-              <h2 className="text-4xl font-serif font-bold mb-8 uppercase">{category}</h2>
+            <section key={category} className="mb-16 border-b-4 border-foreground pb-16 last:border-0">
+              <h2 className="text-4xl font-serif font-bold mb-8 uppercase tracking-tighter">{category}</h2>
               <div className="grid md:grid-cols-2 gap-8">
                 {items
                   ?.filter((item) => item.category === category)
                   .map((item) => (
-                    <div key={item.id} className="border-2 border-foreground p-6">
-                      <div className="flex justify-between items-start mb-4">
-                        <h3 className="text-2xl font-bold font-mono">{item.name}</h3>
-                        <p className="text-2xl font-bold font-mono text-primary">${item.price}</p>
-                      </div>
-                      <p className="text-lg font-sans text-muted-foreground">{item.description}</p>
-                    </div>
+                    <MenuItemCard key={item.id} item={item} />
                   ))}
               </div>
             </section>

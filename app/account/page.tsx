@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input"
 import { useAuth } from "@/components/auth/auth-provider"
 import { getSupabaseClient } from "@/lib/supabase/client"
 
+import { toast } from "sonner"
+
 export default function AccountPage() {
   const [profile, setProfile] = useState({ full_name: "", phone: "", address: "" })
   const [loading, setLoading] = useState(true)
@@ -30,6 +32,7 @@ export default function AccountPage() {
 
         if (error && error.code !== "PGRST116") {
           console.error("Error fetching profile:", JSON.stringify(error, null, 2))
+          toast.error("Failed to load profile settings")
         }
 
         if (data) {
@@ -37,6 +40,7 @@ export default function AccountPage() {
         }
       } catch (err) {
         console.error("Unexpected error:", err)
+        toast.error("An unexpected error occurred")
       } finally {
         setLoading(false)
       }
@@ -49,12 +53,16 @@ export default function AccountPage() {
     setSaving(true)
     const { error } = await supabase.from("users").upsert({
       id: user?.id,
-      email: user?.email, // Ensure email is passed for upsert if needed, though id should suffice if key
+      email: user?.email,
       ...profile,
+      updated_at: new Date().toISOString(),
     })
 
     if (error) {
       console.error("Error saving profile:", JSON.stringify(error, null, 2))
+      toast.error("Failed to update profile")
+    } else {
+      toast.success("Profile updated successfully")
     }
     setSaving(false)
   }

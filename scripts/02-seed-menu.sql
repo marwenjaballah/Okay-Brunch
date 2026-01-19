@@ -1,7 +1,7 @@
 -- Insert sample menu items
 INSERT INTO menu_items (name, description, price, category, image_url) VALUES
-('Avocado Toast', 'Sourdough with smashed avocado, olive oil, and red pepper flakes', 14.99, 'Toast', '/placeholder.svg?height=300&width=300'),
-('Eggs Benedict', 'Poached eggs, Canadian bacon, and hollandaise on English muffin', 16.99, 'Eggs', '/placeholder.svg?height=300&width=300'),
+('Avocado Toast', 'Sourdough with smashed avocado, olive oil, and red pepper flakes', 14.99, 'Toast', '/food_avocado_toast.png'),
+('Eggs Benedict', 'Poached eggs, Canadian bacon, and hollandaise on English muffin', 16.99, 'Eggs', '/food_eggs_benedict.png'),
 ('Smoked Salmon Bagel', 'Toasted bagel with cream cheese, smoked salmon, capers, and red onion', 15.99, 'Bagels', '/placeholder.svg?height=300&width=300'),
 ('Pancake Stack', 'Three fluffy pancakes with maple syrup and fresh berries', 14.99, 'Pancakes', '/placeholder.svg?height=300&width=300'),
 ('Greek Omelette', 'Feta, spinach, tomato, and olives in a fluffy three-egg omelette', 13.99, 'Omelettes', '/placeholder.svg?height=300&width=300'),

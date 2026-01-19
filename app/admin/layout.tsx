@@ -48,10 +48,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="flex min-h-screen w-full">
         <AdminSidebar />
         <main className="flex-1 w-full">
-            <div className="p-4">
-                <SidebarTrigger />
-            </div>
-            {children}
+          <div className="p-4">
+            <SidebarTrigger />
+          </div>
+          {children}
         </main>
       </div>
     </SidebarProvider>
@@ -66,46 +66,46 @@ function AdminSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-            <SidebarGroupLabel>Management</SidebarGroupLabel>
-            <SidebarMenu>
-                <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                        <Link href="/admin/dashboard">
-                            <Home className="mr-2 h-4 w-4" />
-                            <span>Dashboard</span>
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                        <Link href="#">
-                            <Package className="mr-2 h-4 w-4" />
-                            <span>Menu (Coming Soon)</span>
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                        <Link href="#">
-                            <Users className="mr-2 h-4 w-4" />
-                            <span>Users (Coming Soon)</span>
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
+          <SidebarGroupLabel>Management</SidebarGroupLabel>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/admin/dashboard">
+                  <Home className="mr-2 h-4 w-4" />
+                  <span>Dashboard</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/admin/inventory">
+                  <Package className="mr-2 h-4 w-4" />
+                  <span>Inventory</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="#">
+                  <Users className="mr-2 h-4 w-4" />
+                  <span>Users (Coming Soon)</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="p-4 border-t border-sidebar-border">
-          <SidebarMenu>
-            <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                    <Link href="/">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>Exit Admin</span>
-                    </Link>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link href="/">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Exit Admin</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   )
