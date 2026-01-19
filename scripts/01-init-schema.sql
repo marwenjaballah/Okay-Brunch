@@ -9,8 +9,8 @@ CREATE TABLE users (
   updated_at TIMESTAMP DEFAULT now()
 );
 
--- Create menu_items table
-CREATE TABLE menu_items (
+-- Create items table
+CREATE TABLE items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   description TEXT,
@@ -22,16 +22,6 @@ CREATE TABLE menu_items (
   updated_at TIMESTAMP DEFAULT now()
 );
 
--- Create cart items table
-CREATE TABLE cart_items (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  menu_item_id UUID NOT NULL REFERENCES menu_items(id) ON DELETE CASCADE,
-  quantity INTEGER NOT NULL DEFAULT 1,
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP DEFAULT now(),
-  UNIQUE(user_id, menu_item_id)
-);
 
 -- Create orders table
 CREATE TABLE orders (
@@ -51,7 +41,7 @@ CREATE TABLE orders (
 CREATE TABLE order_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-  menu_item_id UUID NOT NULL REFERENCES menu_items(id),
+  item_id UUID NOT NULL REFERENCES items(id),
   quantity INTEGER NOT NULL,
   price DECIMAL(10, 2) NOT NULL,
   created_at TIMESTAMP DEFAULT now()
@@ -59,8 +49,7 @@ CREATE TABLE order_items (
 
 -- Enable RLS
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE menu_items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE cart_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
 
@@ -73,19 +62,13 @@ CREATE POLICY "Users can update own profile" ON users FOR UPDATE USING (auth.uid
 -- Users can insert their own profile
 CREATE POLICY "Users can insert own profile" ON users FOR INSERT WITH CHECK (auth.uid() = id);
 
--- Menu items are publicly readable
-CREATE POLICY "Menu items are public" ON menu_items FOR SELECT USING (true);
+-- Items are publicly readable
+CREATE POLICY "Items are public" ON items FOR SELECT USING (true);
 
--- Only admins can modify menu items
-CREATE POLICY "Admins can manage menu items" ON menu_items FOR ALL USING (
+-- Only admins can modify items
+CREATE POLICY "Admins can manage items" ON items FOR ALL USING (
   EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
 );
-
--- Users can read their own cart
-CREATE POLICY "Users can read own cart" ON cart_items FOR SELECT USING (auth.uid() = user_id);
-
--- Users can manage their own cart
-CREATE POLICY "Users can manage own cart" ON cart_items FOR ALL USING (auth.uid() = user_id);
 
 -- Users can read their own orders
 CREATE POLICY "Users can read own orders" ON orders FOR SELECT USING (auth.uid() = user_id);
@@ -100,8 +83,7 @@ CREATE POLICY "Users can read own order items" ON order_items FOR SELECT USING (
 
 -- Create indexes
 CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_menu_items_category ON menu_items(category);
-CREATE INDEX idx_cart_items_user ON cart_items(user_id);
+CREATE INDEX idx_items_category ON items(category);
 CREATE INDEX idx_orders_user ON orders(user_id);
 CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_order_items_order ON order_items(order_id);

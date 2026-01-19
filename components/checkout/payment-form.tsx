@@ -81,7 +81,7 @@ export function PaymentForm({ user, total }: PaymentFormProps) {
     // 3. Add Order Items
     const orderItems = cart.map((c) => ({
       order_id: order.id,
-      menu_item_id: c.item.id,
+      item_id: c.item.id,
       quantity: c.quantity,
       price: c.item.price,
     }))

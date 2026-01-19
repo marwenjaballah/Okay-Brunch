@@ -21,7 +21,7 @@ interface OrderItem {
   id: string
   quantity: number
   price: number
-  menu_items: { name: string }
+  items: { name: string }
 }
 
 export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -52,7 +52,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
 
         const { data: itemsData } = await supabase
           .from("order_items")
-          .select("id, quantity, price, menu_items(name)")
+          .select("id, quantity, price, items(name)")
           .eq("order_id", id)
 
         setItems(itemsData || [])
@@ -116,8 +116,8 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                   <div className="flex justify-between items-center">
                     <p className="text-xs font-bold text-muted-foreground uppercase">Payment Status</p>
                     <span className={`px-4 py-1 text-xs font-bold border-2 border-foreground uppercase ${order.payment_status === "paid" ? "bg-green-600 text-white" :
-                        order.payment_status === "refunded" ? "bg-orange-600 text-white border-orange-700" :
-                          "bg-foreground text-background"
+                      order.payment_status === "refunded" ? "bg-orange-600 text-white border-orange-700" :
+                        "bg-foreground text-background"
                       }`}
                     >
                       {order.payment_status || 'unpaid'}
@@ -140,7 +140,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                   {items.map((item) => (
                     <div key={item.id} className="flex justify-between border-b border-foreground pb-4">
                       <div>
-                        <p className="font-mono font-bold">{item.menu_items.name}</p>
+                        <p className="font-mono font-bold">{item.items.name}</p>
                         <p className="text-sm text-muted-foreground font-mono">Qty: {item.quantity}</p>
                       </div>
                       <p className="font-mono font-bold">${(item.price * item.quantity).toFixed(2)}</p>

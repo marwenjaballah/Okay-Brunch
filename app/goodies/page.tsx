@@ -18,7 +18,7 @@ export default function GoodiesPage() {
     useEffect(() => {
         const fetchItems = async () => {
             const { data } = await supabase
-                .from("menu_items")
+                .from("items")
                 .select("*")
                 .eq("category", "Goodies")
                 .order("name")

@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 
 export const metadata = {
   title: "Okay Brunch - Premium Brunch Experience",
@@ -12,7 +13,6 @@ export default function HomePage() {
     <>
       <Header />
       <main className="min-h-screen bg-background">
-        {/* Hero Section */}
         <section className="max-w-7xl mx-auto px-4 py-24 border-b-4 border-foreground">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
@@ -25,25 +25,30 @@ export default function HomePage() {
                 <Link href="/menu">
                   <Button className="px-8 py-6 text-lg font-bold border-2 border-foreground">EXPLORE MENU</Button>
                 </Link>
-                <Link href="/shop">
+                <Link href="/goodies">
                   <Button
                     variant="outline"
                     className="px-8 py-6 text-lg font-bold border-2 border-foreground bg-transparent"
                   >
-                    ORDER NOW
+                    EXPLORE GOODIES
                   </Button>
                 </Link>
               </div>
             </div>
-            <div className="bg-secondary border-4 border-foreground p-12 aspect-square flex items-center justify-center">
+            <div className=" border-foreground aspect-square flex items-center justify-center">
               <div className="text-center">
-                <p className="text-6xl font-bold text-foreground font-serif">BRUNCH</p>
+                <Image
+                  src="/images/brunch.jpg"
+                  alt="Product image"
+                  width={600}
+                  height={600}
+                  className="border-4 border-foreground"
+                />
               </div>
             </div>
           </div>
         </section>
 
-        {/* Features Section */}
         <section className="max-w-7xl mx-auto px-4 py-24 border-b-4 border-foreground">
           <h2 className="text-5xl font-serif font-bold mb-16">WHY OKAY BRUNCH</h2>
           <div className="grid md:grid-cols-3 gap-8">
@@ -60,12 +65,11 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* CTA Section */}
         <section className="max-w-7xl mx-auto px-4 py-24">
           <div className="border-4 border-foreground bg-primary p-16 text-center">
             <h2 className="text-5xl font-serif font-bold mb-6 text-primary-foreground">READY TO BRUNCH?</h2>
             <p className="text-xl font-mono mb-8 text-primary-foreground">Order your next brunch experience</p>
-            <Link href="/shop">
+            <Link href="/menu">
               <Button className="px-8 py-6 text-lg font-bold border-2 border-primary-foreground bg-primary-foreground text-foreground hover:bg-secondary">
                 ORDER NOW
               </Button>
@@ -76,7 +80,7 @@ export default function HomePage() {
 
       <footer className="border-t-4 border-foreground bg-muted py-12">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="font-mono font-bold">© 2025 Okay Brunch. All rights reserved.</p>
+          <p className="font-mono font-bold">Â© 2026 Okay Brunch. All rights reserved.</p>
         </div>
       </footer>
     </>

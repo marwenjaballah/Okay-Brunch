@@ -73,11 +73,11 @@ export function ProductForm({ initialData, onSuccess }: ProductFormProps) {
 
             const { error } = initialData
                 ? await supabase
-                    .from("menu_items")
+                    .from("items")
                     .update(values)
                     .eq("id", initialData.id)
                 : await supabase
-                    .from("menu_items")
+                    .from("items")
                     .insert([values])
 
             if (error) throw error

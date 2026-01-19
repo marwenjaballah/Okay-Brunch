@@ -10,7 +10,7 @@ export const metadata = {
 export default async function MenuPage() {
   const supabase = await getSupabaseServer()
 
-  const { data: items } = await supabase.from("menu_items").select("*").order("category")
+  const { data: items } = await supabase.from("items").select("*").order("category")
 
   const categories = [...new Set(items?.map((item) => item.category) || [])]
 

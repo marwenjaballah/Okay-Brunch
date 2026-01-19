@@ -39,7 +39,7 @@ export default function InventoryPage() {
     const fetchItems = async () => {
         setLoading(true)
         const { data, error } = await supabase
-            .from("menu_items")
+            .from("items")
             .select("*")
             .order("category")
 
@@ -69,7 +69,7 @@ export default function InventoryPage() {
 
             // 2. Delete the database record
             const { error } = await supabase
-                .from("menu_items")
+                .from("items")
                 .delete()
                 .eq("id", item.id)
 
