@@ -10,12 +10,16 @@ export function MenuItemCard({ item }: { item: MenuItem }) {
     const { addToCart } = useCartStore()
 
     const handleAdd = () => {
+        if (!item.available) {
+            toast.error(`${item.name} is currently out of stock`)
+            return
+        }
         addToCart(item)
         toast.success(`${item.name} added to cart`)
     }
 
     return (
-        <div className="border-4 border-foreground bg-card hover:bg-muted/10 transition-all group overflow-hidden flex flex-col">
+        <div className={`border-4 border-foreground bg-card hover:bg-muted/10 transition-all group overflow-hidden flex flex-col ${!item.available ? "opacity-60 grayscale-[0.5]" : ""}`}>
             <div className="aspect-[16/9] relative bg-muted border-b-4 border-foreground overflow-hidden">
                 <Image
                     src={item.image_url || "/placeholder.svg"}
@@ -35,9 +39,13 @@ export function MenuItemCard({ item }: { item: MenuItem }) {
                 <p className="text-sm font-sans text-muted-foreground mb-8 leading-relaxed flex-1">{item.description}</p>
                 <Button
                     onClick={handleAdd}
-                    className="w-full border-2 border-foreground font-bold py-6 text-lg tracking-widest uppercase hover:bg-foreground hover:text-background"
+                    disabled={!item.available}
+                    className={`w-full border-2 border-foreground font-bold py-6 text-lg tracking-widest uppercase ${item.available
+                            ? "hover:bg-foreground hover:text-background"
+                            : "bg-muted text-muted-foreground cursor-not-allowed opacity-100"
+                        }`}
                 >
-                    ADD TO CART
+                    {item.available ? "ADD TO CART" : "OUT OF STOCK"}
                 </Button>
             </div>
         </div>

@@ -11,6 +11,7 @@ interface Order {
   id: string
   total_amount: number
   status: string
+  payment_status: "paid" | "unpaid" | "refunded"
   created_at: string
   delivery_address: string
   notes: string
@@ -88,31 +89,46 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       <Header />
       <main className="min-h-screen bg-background py-24">
         <div className="max-w-3xl mx-auto px-4">
-          <button onClick={() => router.back()} className="font-mono font-bold mb-6 hover:text-primary">
-            ← BACK
+          <button onClick={() => router.back()} className="font-mono font-bold mb-6 hover:text-primary transition-colors flex items-center gap-2">
+            <span className="text-xl">←</span> BACK TO ORDERS
           </button>
 
           <div className="grid md:grid-cols-3 gap-12">
             <div className="md:col-span-2">
-              <h1 className="text-5xl font-serif font-bold mb-12">ORDER #{order.id.slice(0, 8)}</h1>
+              <h1 className="text-5xl font-serif font-bold mb-12 uppercase tracking-tighter">ORDER #{order.id.slice(0, 8)}</h1>
 
-              <div className="border-4 border-foreground p-8 mb-8">
-                <h2 className="text-2xl font-bold font-mono mb-6">ORDER DETAILS</h2>
-                <div className="space-y-4 font-mono">
-                  <div>
-                    <p className="text-sm text-muted-foreground">ORDERED</p>
-                    <p className="font-bold">{new Date(order.created_at).toLocaleDateString()}</p>
+              <div className="border-4 border-foreground p-8 mb-8 bg-card shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                <h2 className="text-2xl font-bold font-mono mb-8 uppercase border-b-2 border-foreground pb-4">ORDER SUMMARY</h2>
+                <div className="space-y-6 font-mono">
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs font-bold text-muted-foreground uppercase">Date Placed</p>
+                    <p className="font-bold">{new Date(order.created_at).toLocaleDateString(undefined, { dateStyle: 'long' })}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">STATUS</p>
-                    <p className="font-bold uppercase">{order.status}</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs font-bold text-muted-foreground uppercase">Order Status</p>
+                    <span className={`px-4 py-1 text-xs font-bold border-2 border-foreground uppercase ${order.status === "delivered" ? "bg-green-100 text-green-800" :
+                      order.status === "cancelled" ? "bg-red-100 text-red-800" :
+                        "bg-yellow-100 text-yellow-800"
+                      }`}>
+                      {order.status}
+                    </span>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">DELIVERY ADDRESS</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-xs font-bold text-muted-foreground uppercase">Payment Status</p>
+                    <span className={`px-4 py-1 text-xs font-bold border-2 border-foreground uppercase ${order.payment_status === "paid" ? "bg-green-600 text-white" :
+                        order.payment_status === "refunded" ? "bg-orange-600 text-white border-orange-700" :
+                          "bg-foreground text-background"
+                      }`}
+                    >
+                      {order.payment_status || 'unpaid'}
+                    </span>
+                  </div>
+                  <div className="pt-4 border-t border-foreground/10">
+                    <p className="text-xs font-bold text-muted-foreground uppercase mb-2">Delivery Address</p>
                     <p className="font-bold">{order.delivery_address}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">PHONE</p>
+                    <p className="text-xs font-bold text-muted-foreground uppercase mb-2">Contact Phone</p>
                     <p className="font-bold">{order.notes}</p>
                   </div>
                 </div>

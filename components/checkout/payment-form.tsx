@@ -40,7 +40,7 @@ export function PaymentForm({ user, total }: PaymentFormProps) {
     fetchProfile()
   }, [user, supabase])
 
-  const createOrder = async (status: "paid" | "pending") => {
+  const createOrder = async (status: string, paymentStatus: "paid" | "unpaid") => {
     // 1. Ensure user exists (Upsert)
     const { error: userError } = await supabase
       .from("users")
@@ -65,6 +65,7 @@ export function PaymentForm({ user, total }: PaymentFormProps) {
         {
           user_id: user.id,
           status: status,
+          payment_status: paymentStatus,
           total_amount: total,
           delivery_address: address,
           notes: phone,
@@ -139,7 +140,7 @@ export function PaymentForm({ user, total }: PaymentFormProps) {
         }
 
         if (paymentIntent && paymentIntent.status === "succeeded") {
-          const order = await createOrder("paid")
+          const order = await createOrder("pending", "paid")
           clearCart()
           router.push(`/orders/${order.id}`)
         } else {
@@ -148,7 +149,7 @@ export function PaymentForm({ user, total }: PaymentFormProps) {
         }
       } else {
         // Cash Payment
-        const order = await createOrder("pending")
+        const order = await createOrder("pending", "unpaid")
         clearCart()
         router.push(`/orders/${order.id}`)
       }

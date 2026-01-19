@@ -17,6 +17,10 @@ export const useCartStore = create<CartStore>()(
       cart: [],
       
       addToCart: (item: MenuItem) => {
+        if (item.available === false) {
+          console.error("Attempted to add unavailable item to cart:", item.name)
+          return
+        }
         const { cart } = get()
         const existing = cart.find((c) => c.item.id === item.id)
         
