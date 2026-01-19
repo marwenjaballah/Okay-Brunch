@@ -38,7 +38,7 @@ interface Order {
   notes: string
   users?: {
     full_name: string
-    email: string 
+    email: string
   }
 }
 
@@ -88,12 +88,12 @@ export default function AdminDashboard() {
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     const { error } = await supabase.from("orders").update({ status: newStatus }).eq("id", orderId)
-    
+
     if (error) {
-        toast.error("Failed to update status")
-        return
+      toast.error("Failed to update status")
+      return
     }
-    
+
     toast.success(`Order updated to ${newStatus}`)
     setOrders(orders.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)))
   }
@@ -101,16 +101,16 @@ export default function AdminDashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending": return "secondary" // Gray/Default
-      case "paid": return "default" // Black/Primary - indicating money received, ready to process
+      case "paid": return "bg-yellow-500 text-black hover:bg-yellow-600" // Yellow - payment received
       case "processing": return "outline" // Outline
-      case "delivered": return "secondary" 
-      case "cancelled": return "destructive"
+      case "delivered": return "bg-green-600 text-white hover:bg-green-700" // Green - successfully delivered 
+      case "cancelled": return "bg-red-600 text-white hover:bg-red-700" // Red - cancelled order
       default: return "outline"
     }
   }
 
   if (loading) {
-     return <div className="p-8">Loading dashboard...</div>
+    return <div className="p-8">Loading dashboard...</div>
   }
 
   return (
@@ -118,12 +118,12 @@ export default function AdminDashboard() {
       <div className="flex justify-between items-center">
         <h1 className="text-4xl font-serif font-bold">DASHBOARD</h1>
         <div className="flex gap-4">
-            <div className="p-4 border-2 border-border bg-card">
-                <p className="text-xs font-mono text-muted-foreground">REVENUE</p>
-                <p className="text-2xl font-bold font-mono">
-                    ${orders.filter(o => o.status !== 'cancelled').reduce((acc, curr) => acc + curr.total_amount, 0).toFixed(2)}
-                </p>
-            </div>
+          <div className="p-4 border-2 border-border bg-card">
+            <p className="text-xs font-mono text-muted-foreground">REVENUE</p>
+            <p className="text-2xl font-bold font-mono">
+              ${orders.filter(o => o.status !== 'cancelled').reduce((acc, curr) => acc + curr.total_amount, 0).toFixed(2)}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -134,15 +134,15 @@ export default function AdminDashboard() {
         </div>
         <div className="border-4 border-foreground p-6 bg-background">
           <p className="text-sm font-bold font-mono text-muted-foreground">PAID / TO PROCESS</p>
-          <p className="text-4xl font-mono font-bold mt-2 text-green-600">{stats.paid}</p>
+          <p className="text-4xl font-mono font-bold mt-2 text-yellow-600">{stats.paid}</p>
         </div>
         <div className="border-4 border-foreground p-6 bg-background">
-           <p className="text-sm font-bold font-mono text-muted-foreground">DELIVERED</p>
-           <p className="text-4xl font-mono font-bold mt-2">{stats.delivered}</p>
+          <p className="text-sm font-bold font-mono text-muted-foreground">DELIVERED</p>
+          <p className="text-4xl font-mono font-bold mt-2 text-green-600">{stats.delivered}</p>
         </div>
-         <div className="border-4 border-foreground p-6 bg-background">
-           <p className="text-sm font-bold font-mono text-muted-foreground">PENDING (Unpaid)</p>
-           <p className="text-4xl font-mono font-bold mt-2 text-yellow-600">{stats.pending}</p>
+        <div className="border-4 border-foreground p-6 bg-background">
+          <p className="text-sm font-bold font-mono text-muted-foreground">PENDING (Unpaid)</p>
+          <p className="text-4xl font-mono font-bold mt-2 text-zinc-500">{stats.pending}</p>
         </div>
       </div>
 
@@ -163,11 +163,14 @@ export default function AdminDashboard() {
               <TableRow key={order.id} className="border-b-foreground/20">
                 <TableCell className="font-mono">{order.id.slice(0, 8)}...</TableCell>
                 <TableCell>
-                    <div className="font-bold">{order.users?.full_name || "Guest"}</div>
-                    <div className="text-xs text-muted-foreground">{order.users?.email}</div>
+                  <div className="font-bold">{order.users?.full_name || "Guest"}</div>
+                  <div className="text-xs text-muted-foreground">{order.users?.email}</div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={getStatusColor(order.status) as any} className="uppercase font-mono rounded-none">
+                  <Badge
+                    variant={["pending", "processing", "outline"].includes(order.status) ? getStatusColor(order.status) as any : "default"}
+                    className={`uppercase font-mono rounded-none ${!["pending", "processing", "outline"].includes(order.status) ? getStatusColor(order.status) : ""}`}
+                  >
                     {order.status}
                   </Badge>
                 </TableCell>
