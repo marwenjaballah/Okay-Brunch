@@ -75,12 +75,8 @@ To allow n8n to send emails and edit sheets, you must set up an OAuth2 app in Go
 *   **Operation**: `Append`.
 *   **Spreadsheet ID**: Open your target Google Sheet. Copy the long ID string from the URL between `/d/` and `/edit`. Paste it here.
 *   **Range**: Leave empty to append to the end, or specify a sheet name like `Sheet1!A:A`.
-*   **Data Mode**: `Define Below` (Map columns manually) or `Auto-Map Input Data` (if column headers match JSON keys).
-    *   *Recommendation*: Use `Define Below` and map:
-        *   `Date` -> `{{ $json.body.date }}`
-        *   `Order ID` -> `{{ $json.body.order_id }}`
-        *   `Customer` -> `{{ $json.body.user.email }}`
-        *   `Total` -> `{{ $json.body.total }}`
+*   **Data Mode**: `Auto-Map Input Data`. 
+    *   *Note*: The "Edit Fields" node preceding this ensures the input fields match your column headers (`Date`, `Order ID`, `Email`, `Total`).
 
 ### 4. Slack Node (Team Notification)
 *   **Credential**: Create a Slack App, enable "Incoming Webhooks", and copy the token/URL. Or use OAuth.
@@ -90,8 +86,8 @@ To allow n8n to send emails and edit sheets, you must set up an OAuth2 app in Go
 *   **Text/Block**: formatting. Use Slack markdown:
     ```
     💰 *New Order Received!*
-    *Amount:* ${{ $json.body.total }}
-    *Customer:* {{ $json.body.user.email }}
+    *Amount:* ${{ $json["Total"] }}
+    *Customer:* {{ $json["Email"] }}
     *Items:* {{ $json.body.items.length }} items
     ```
 
@@ -119,15 +115,15 @@ To allow n8n to send emails and edit sheets, you must set up an OAuth2 app in Go
     {
       "parameters": {
         "resource": "message",
-        "subject": "Order Confirmation - Okay Brunch",
-        "message": "=Hi there,\n\nThanks for your order at Okay Brunch!\n\nOrder ID: {{ $json.body.order_id }}\nTotal: ${{ $json.body.total }}\n\nWe are preparing it now!\n\nBest,\nOkay Brunch Team",
-        "toEmail": "={{ $json.body.user.email }}"
+        "subject": "=Order Confirmation - Okay Brunch (ID: {{ $json[\"Order ID\"] }})",
+        "message": "=Hi there,\n\nThanks for your order at Okay Brunch!\n\nOrder ID: {{ $json[\"Order ID\"] }}\nTotal: ${{ $json[\"Total\"] }}\n\nWe are preparing it now!\n\nBest,\nOkay Brunch Team",
+        "toEmail": "={{ $json[\"Email\"] }}"
       },
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2,
       "position": [
-        500,
-        200
+        750,
+        150
       ],
       "id": "gmail-node",
       "name": "Send Email"
@@ -136,32 +132,14 @@ To allow n8n to send emails and edit sheets, you must set up an OAuth2 app in Go
       "parameters": {
         "operation": "append",
         "sheetId": "YOUR_SHEET_ID_HERE",
-        "details": {
-          "columns": [
-            {
-              "key": "Date",
-              "value": "={{ $json.body.date }}"
-            },
-            {
-              "key": "Order ID",
-              "value": "={{ $json.body.order_id }}"
-            },
-            {
-              "key": "Email",
-              "value": "={{ $json.body.user.email }}"
-            },
-            {
-              "key": "Total",
-              "value": "={{ $json.body.total }}"
-            }
-          ]
-        }
+        "dataMode": "autoMapInputData",
+        "options": {}
       },
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4,
       "position": [
-        500,
-        400
+        750,
+        350
       ],
       "id": "google-sheets-node",
       "name": "Add to Sheets"
@@ -169,20 +147,73 @@ To allow n8n to send emails and edit sheets, you must set up an OAuth2 app in Go
     {
       "parameters": {
         "channel": "orders",
-        "text": "=💰 *New Order Received!*\n\n*Amount:* ${{ $json.body.total }}\n*Customer:* {{ $json.body.user.email }}\n*Items:* {{ $json.body.items.length }} items"
+        "text": "=💰 *New Order Received!*\n\n*Amount:* ${{ $json[\"Total\"] }}\n*Customer:* {{ $json[\"Email\"] }}\n*Items:* {{ $json.body.items.length }} items"
       },
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2,
       "position": [
-        500,
-        600
+        750,
+        550
       ],
       "id": "slack-node",
       "name": "Notify Slack"
+    },
+    {
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "assign_date",
+              "name": "Date",
+              "value": "={{ $json.body.date }}",
+              "type": "string"
+            },
+            {
+              "id": "assign_order_id",
+              "name": "Order ID",
+              "value": "={{ $json.body.order_id }}",
+              "type": "string"
+            },
+            {
+              "id": "assign_email",
+              "name": "Email",
+              "value": "={{ $json.body.user.email }}",
+              "type": "string"
+            },
+            {
+              "id": "assign_total",
+              "name": "Total",
+              "value": "={{ $json.body.total }}",
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "id": "edit-fields-node",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [
+        480,
+        300
+      ]
     }
   ],
   "connections": {
     "Order Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
       "main": [
         [
           {

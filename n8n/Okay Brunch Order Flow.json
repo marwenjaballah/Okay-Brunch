@@ -1,0 +1,263 @@
+{
+  "name": "Okay Brunch Order Flow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "webhook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        112
+      ],
+      "id": "be88b8ee-910c-4c1c-a75e-d64194255ff7",
+      "name": "Order Webhook",
+      "webhookId": "5e586276-0662-4ccc-a09b-26339f27b042"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body.user.email }}",
+        "subject": "Order Confirmation - Okay Brunch",
+        "message": "=Hi there,\n\nThanks for your order at Okay Brunch!\n\nOrder ID: {{ $json.body.order_id }}\nTotal: ${{ $json.body.total }}\n\nWe are preparing it now!\n\nBest,\nOkay Brunch Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        48,
+        -16
+      ],
+      "id": "42d42e3c-9f82-4131-80f5-74617eb029d2",
+      "name": "Send Email",
+      "webhookId": "4809a490-c414-4f44-94d5-79417d88d70a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "L5EkOXfK5TankW1l",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "16ENsUZy8zhHwR50e6UhU32QYGormMCdyka_t1rnNM1M",
+          "mode": "list",
+          "cachedResultName": "testn8n",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16ENsUZy8zhHwR50e6UhU32QYGormMCdyka_t1rnNM1M/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16ENsUZy8zhHwR50e6UhU32QYGormMCdyka_t1rnNM1M/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "order_id": "={{ $json.order_id }}",
+            "user_email": "={{ $json.user_id }}",
+            "user_id": "={{ $json.user_id }}",
+            "item_name": "={{ $json.item_name }}",
+            "quantity": "={{ $json.quantity }}",
+            "price": "={{ $json.price }}",
+            "order_total": "={{ $json.order_total }}",
+            "date": "={{ $json.date }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "order_id",
+              "displayName": "order_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "user_email",
+              "displayName": "user_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "item_name",
+              "displayName": "item_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "quantity",
+              "displayName": "quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "price",
+              "displayName": "price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "order_total",
+              "displayName": "order_total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        192,
+        176
+      ],
+      "id": "ae290d44-b43c-4cd5-91e8-dfdbeb557c3e",
+      "name": "Add to Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "cKxSddjzlj4oBvTs",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0A9L5WQK45",
+          "mode": "id"
+        },
+        "text": "=💰 *New Order Received!*\n\n*Amount:* ${{ $json.body.total }}\n*Customer:* {{ $json.body.user.email }}\n*Items:* {{ $json.body.items.length }} items",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [
+        0,
+        400
+      ],
+      "id": "189c63d7-c3e7-4a76-b140-7af531543b0b",
+      "name": "Notify Slack",
+      "webhookId": "f4e113b6-7f73-4ac3-922f-cb502259d33d",
+      "credentials": {
+        "slackApi": {
+          "id": "GqbEIoX6BoZ6T3U7",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const order = $json.body;\n\nreturn order.items.map(item => {\n  return {\n    json: {\n      order_id: order.order_id,\n      user_email: order.user.email,\n      user_id: order.user.id,\n      item_name: item.name,\n      quantity: item.quantity,\n      price: item.price,\n      order_total: order.total,\n      date: order.date\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        176
+      ],
+      "id": "2a59a0f3-3582-483b-bf66-41d4a838f3a4",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Order Webhook": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Add to Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "5c9227a6-516e-489b-ae4f-6111308646f5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "24a977feb21e81137a361f6c1e9a2c4acc055b1d23ee671116f84495355d67ca"
+  },
+  "id": "42xPJclUOdHvu4mQN5buv",
+  "tags": []
+}

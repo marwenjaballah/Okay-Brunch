@@ -43,22 +43,9 @@ export default function SignupPage() {
       return
     }
 
-    // Create user entry in users table
-    if (data.user) {
-      const { error: userError } = await supabase
-        .from("users")
-        .insert({
-          id: data.user.id,
-          email: data.user.email!,
-          // Default full name from email if not provided
-          full_name: data.user.email?.split("@")[0],
-        })
-
-      if (userError) {
-        console.error("Error creating user profile:", userError)
-        // We continue anyway, the checkout page has a fallback upsert
-      }
-    }
+    // User profile creation is now handled by the database trigger: 
+    // scripts/12-add-user-trigger.sql
+    // This avoids RLS issues before email confirmation.
 
     router.push("/auth/confirmation")
     setLoading(false)
